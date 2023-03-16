@@ -1,0 +1,11 @@
+{
+  "name": "mdm-scanner-reports-y23",
+  "version": "1.0.0",
+  "description": "Scanner Reports App",
+  "main": "index.js",
+  "scripts": {
+    "test": "hello"
+  },
+  "author": "Brian Griffin",
+  "license": "BSD-2-Clause"
+}
