@@ -4,8 +4,23 @@
   "description": "Scanner Reports App",
   "main": "index.js",
   "scripts": {
-    "test": "hello"
+    "test": "hello",
+    "build": "webpack --config .config/webpack.config.js",
+    "deploy-www": "firebase deploy --only hosting:mdm-slirp-www",
+    "deploy-func": "firebase deploy --only-functions",
+    "deploy": "npm run build && npm run deploy-www"
   },
   "author": "Brian Griffin",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "css-loader": "^6.7.3",
+    "dotenv-webpack": "^8.0.1",
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.76.2",
+    "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "firebase": "^9.18.0",
+    "firebaseui": "^6.0.2"
+  }
 }

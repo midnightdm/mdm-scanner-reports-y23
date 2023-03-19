@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "scanner-reports-y23"
+  },
+  "targets": {
+    "scanner-reports-y23": {
+      "hosting": {
+        "mdm-slirp-www": [
+          "scanner-reports-y23"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
