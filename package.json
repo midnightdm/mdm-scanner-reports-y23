@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "hello",
+    "dev-build": "webpack --config .config/webpack.devconfig.js",
     "build": "webpack --config .config/webpack.config.js",
     "deploy-www": "firebase deploy --only hosting:mdm-slirp-www",
     "deploy-func": "firebase deploy --only-functions",

@@ -12,6 +12,7 @@
     }
   ],
   "hosting": {
+    "target": "mdm-slirp-www",
     "public": "public",
     "ignore": [
       "firebase.json",
