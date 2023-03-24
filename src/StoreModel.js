@@ -1,7 +1,10 @@
 export const StoreModel = {
-  user: {},
+  user: null,
+  isLoggedIn: false,
   a: "wonder",
   b: "ment",
+  ui: null,
+  uiConfig: null,
   pageId: null,
   //Methods
   mapper(a,b) {

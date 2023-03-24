@@ -13,18 +13,6 @@ const firebaseConfig = {
   appId: "1:207526989402:web:4df85612c2847d84cd1263"
 };
 
-import firebase from 'firebase/compat/app';
-import { getAuth } from 'firebase/auth';
-import * as firebaseui from 'firebaseui'
-import 'firebaseui/dist/firebaseui.css'
-import { StoreModel as store } from  './StoreModel.js'
-import './router.js'
-
-
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
 // FirebaseUI config.
 const uiConfig = {
   signInFlow: 'popup',
@@ -42,7 +30,7 @@ const uiConfig = {
   // tosUrl and privacyPolicyUrl accept either url string or a callback
   // function.
   // Terms of service url/callback.
-  tosUrl: '/tos',
+  tosUrl: '/tos.html',
   callbacks: {
     signInSuccessWithAuthResult: function(authResult) {
       user.value - authResult.user.displayName;
@@ -54,44 +42,69 @@ const uiConfig = {
   },
   // Privacy policy url/callback.
   privacyPolicyUrl: function() {
-    window.location.assign('/privacy');
+    window.location.assign('/privacy.html');
   }
 };
 
+import firebase from 'firebase/compat/app';
+import { getAuth, signOut } from 'firebase/auth';
+import * as firebaseui from 'firebaseui'
+import 'firebaseui/dist/firebaseui.css'
+import { StoreModel as store } from  './StoreModel.js'
+import './router.js'
+
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 // Initialize the FirebaseUI Widget using Firebase.
-var ui = new firebaseui.auth.AuthUI(firebase.auth());
+store.ui = new firebaseui.auth.AuthUI(firebase.auth());
+store.uiConfig = uiConfig;
+
 // The start method will wait until the DOM is loaded.
-ui.start('#firebaseui-auth-container', uiConfig);
+//store.ui.start('#firebaseui-auth-container', uiConfig);
+
+//Elements to manipulate
+const signIn = document.getElementById('sign-in');
 
 const initApp = function() {
   auth.onAuthStateChanged(function(user) {
     if (user) {
       // User is signed in.
-      var displayName = user.displayName;
-      var email = user.email;
-      var emailVerified = user.emailVerified;
-      var photoURL = user.photoURL;
-      var uid = user.uid;
-      var phoneNumber = user.phoneNumber;
-      var providerData = user.providerData;
+      // var displayName = user.displayName;
+      // var email = user.email;
+      // var emailVerified = user.emailVerified;
+      // var photoURL = user.photoURL;
+      // var uid = user.uid;
+      // var phoneNumber = user.phoneNumber;
+      // var providerData = user.providerData;
+      store.user = user;
+      store.isLoggedIn = true;
+
       user.getIdToken().then(function(accessToken) {
+      
         document.getElementById('sign-in-status').textContent = 'Signed in';
-        document.getElementById('sign-in').textContent = 'Sign out';
+        signIn.textContent = 'Sign out';
+        signIn.classList.add("active");
+        signIn.addEventListener('click', signOutUser);
+        
         document.getElementById('account-details').textContent = JSON.stringify({
-          displayName: displayName,
-          email: email,
-          emailVerified: emailVerified,
-          phoneNumber: phoneNumber,
-          photoURL: photoURL,
-          uid: uid,
-          accessToken: accessToken,
-          providerData: providerData
+          displayName: store.user.displayName,
+          email: store.user.email,
+          emailVerified: store.user.emailVerified,
+          phoneNumber: store.user.phoneNumber,
+          photoURL: store.user.photoURL,
+          uid: store.user.uid,
+          accessToken: store.user.accessToken,
+          providerData: store.user.providerData
         }, null, '  ');
       });
     } else {
       // User is signed out.
       document.getElementById('sign-in-status').textContent = 'Signed out';
-      document.getElementById('sign-in').textContent = 'Sign in';
+      signIn.textContent = 'Sign in';
+      signIn.classList.remove("active");
       document.getElementById('account-details').textContent = 'null';
     }
   }, function(error) {
@@ -102,3 +115,17 @@ const initApp = function() {
 window.addEventListener('load', function() {
   initApp()
 });
+
+//Functions
+
+//Signout handler
+
+const signOutUser = function() {
+  signOut(auth).then(()=>{
+    store.user = null;
+    store.isLoggedIn = false;
+    console.log("logging out");
+  }).catch((error) => { 
+    console.log("Error logging out"+error)
+  });
+}

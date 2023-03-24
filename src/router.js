@@ -44,18 +44,13 @@ const urlRoutes = {
 		title: "Select Status",
 		description: "Select SLIRP Status",
 	},
-  "/privacy": {
-    id: "privacy",
-		template: "/templates/privacy.html",
+  "/login": {
+    id: "login",
+		template: "/templates/login.html",
 		title: "Select Status",
-		description: "SLIRP Privacy Polcy",
-	},
-  "/tos": {
-    id: "tos",
-		template: "/templates/tos.html",
-		title: "Terms of Service",
-		description: "SLIRP Terms of Service",
+		description: "Select SLIRP Status",
 	}
+
 };
 
 // create a function that watches the url and calls the urlLocationHandler
@@ -69,14 +64,20 @@ const urlRoute = (event) => {
 
 // create a function that handles the url location
 const urlLocationHandler = async () => {
-  if(!user) { return }
-	const location = window.location.pathname; // get the url path
+  
+	let location = window.location.pathname; // get the url path
 	// if the path length is 0, set it to primary page route
 	if (location.length == 0) {
 		location = "/";
 	}
+  if(store.user==null) {
+    location = "/login";
+    //window.location.href = location;
+    
+  }
 	// get the route object from the urlRoutes object
-	const route = urlRoutes[location] || urlRoutes["404"];
+	let route = urlRoutes[location] || urlRoutes["404"];
+
   store.pageId = route.id;
 	// get the html from the template
 	const html = await fetch(route.template).then((response) => response.text());
@@ -89,6 +90,11 @@ const urlLocationHandler = async () => {
 		.querySelector('meta[name="description"]')
 		.setAttribute("content", route.description);
   store.writeFills();
+  if(!store.isLoggedIn) {
+    store.ui.start('#firebaseui-auth-container', store.uiConfig);
+  }
+  
+  
 
 };
 

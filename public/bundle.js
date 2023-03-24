@@ -16593,9 +16593,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "StoreModel": () => (/* binding */ StoreModel)
 /* harmony export */ });
 const StoreModel = {
-  user: {},
+  user: null,
+  isLoggedIn: false,
   a: "wonder",
   b: "ment",
+  ui: null,
+  uiConfig: null,
   pageId: null,
   //Methods
   mapper(a,b) {
@@ -16668,18 +16671,13 @@ const urlRoutes = {
 		title: "Select Status",
 		description: "Select SLIRP Status",
 	},
-  "/privacy": {
-    id: "privacy",
-		template: "/templates/privacy.html",
+  "/login": {
+    id: "login",
+		template: "/templates/login.html",
 		title: "Select Status",
-		description: "SLIRP Privacy Polcy",
-	},
-  "/tos": {
-    id: "tos",
-		template: "/templates/tos.html",
-		title: "Terms of Service",
-		description: "SLIRP Terms of Service",
+		description: "Select SLIRP Status",
 	}
+
 };
 
 // create a function that watches the url and calls the urlLocationHandler
@@ -16693,14 +16691,20 @@ const urlRoute = (event) => {
 
 // create a function that handles the url location
 const urlLocationHandler = async () => {
-  if(!user) { return }
-	const location = window.location.pathname; // get the url path
+  
+	let location = window.location.pathname; // get the url path
 	// if the path length is 0, set it to primary page route
 	if (location.length == 0) {
 		location = "/";
 	}
+  if(_StoreModel__WEBPACK_IMPORTED_MODULE_0__.StoreModel.user==null) {
+    location = "/login";
+    //window.location.href = location;
+    
+  }
 	// get the route object from the urlRoutes object
-	const route = urlRoutes[location] || urlRoutes["404"];
+	let route = urlRoutes[location] || urlRoutes["404"];
+
   _StoreModel__WEBPACK_IMPORTED_MODULE_0__.StoreModel.pageId = route.id;
 	// get the html from the template
 	const html = await fetch(route.template).then((response) => response.text());
@@ -16713,6 +16717,11 @@ const urlLocationHandler = async () => {
 		.querySelector('meta[name="description"]')
 		.setAttribute("content", route.description);
   _StoreModel__WEBPACK_IMPORTED_MODULE_0__.StoreModel.writeFills();
+  if(!_StoreModel__WEBPACK_IMPORTED_MODULE_0__.StoreModel.isLoggedIn) {
+    _StoreModel__WEBPACK_IMPORTED_MODULE_0__.StoreModel.ui.start('#firebaseui-auth-container', _StoreModel__WEBPACK_IMPORTED_MODULE_0__.StoreModel.uiConfig);
+  }
+  
+  
 
 };
 
@@ -19426,18 +19435,6 @@ const firebaseConfig = {
   appId: "1:207526989402:web:4df85612c2847d84cd1263"
 };
 
-
-
-
-
-
-
-
-
-// Initialize Firebase
-const app = firebase_compat_app__WEBPACK_IMPORTED_MODULE_0__["default"].initializeApp(firebaseConfig);
-const auth = (0,firebase_auth__WEBPACK_IMPORTED_MODULE_1__.getAuth)(app);
-
 // FirebaseUI config.
 const uiConfig = {
   signInFlow: 'popup',
@@ -19455,7 +19452,7 @@ const uiConfig = {
   // tosUrl and privacyPolicyUrl accept either url string or a callback
   // function.
   // Terms of service url/callback.
-  tosUrl: '/tos',
+  tosUrl: '/tos.html',
   callbacks: {
     signInSuccessWithAuthResult: function(authResult) {
       user.value - authResult.user.displayName;
@@ -19467,44 +19464,69 @@ const uiConfig = {
   },
   // Privacy policy url/callback.
   privacyPolicyUrl: function() {
-    window.location.assign('/privacy');
+    window.location.assign('/privacy.html');
   }
 };
 
+
+
+
+
+
+
+
+
+// Initialize Firebase
+const app = firebase_compat_app__WEBPACK_IMPORTED_MODULE_0__["default"].initializeApp(firebaseConfig);
+const auth = (0,firebase_auth__WEBPACK_IMPORTED_MODULE_1__.getAuth)(app);
+
 // Initialize the FirebaseUI Widget using Firebase.
-var ui = new firebaseui__WEBPACK_IMPORTED_MODULE_2__.auth.AuthUI(firebase_compat_app__WEBPACK_IMPORTED_MODULE_0__["default"].auth());
+_StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.ui = new firebaseui__WEBPACK_IMPORTED_MODULE_2__.auth.AuthUI(firebase_compat_app__WEBPACK_IMPORTED_MODULE_0__["default"].auth());
+_StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.uiConfig = uiConfig;
+
 // The start method will wait until the DOM is loaded.
-ui.start('#firebaseui-auth-container', uiConfig);
+//store.ui.start('#firebaseui-auth-container', uiConfig);
+
+//Elements to manipulate
+const signIn = document.getElementById('sign-in');
 
 const initApp = function() {
   auth.onAuthStateChanged(function(user) {
     if (user) {
       // User is signed in.
-      var displayName = user.displayName;
-      var email = user.email;
-      var emailVerified = user.emailVerified;
-      var photoURL = user.photoURL;
-      var uid = user.uid;
-      var phoneNumber = user.phoneNumber;
-      var providerData = user.providerData;
+      // var displayName = user.displayName;
+      // var email = user.email;
+      // var emailVerified = user.emailVerified;
+      // var photoURL = user.photoURL;
+      // var uid = user.uid;
+      // var phoneNumber = user.phoneNumber;
+      // var providerData = user.providerData;
+      _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user = user;
+      _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.isLoggedIn = true;
+
       user.getIdToken().then(function(accessToken) {
+      
         document.getElementById('sign-in-status').textContent = 'Signed in';
-        document.getElementById('sign-in').textContent = 'Sign out';
+        signIn.textContent = 'Sign out';
+        signIn.classList.add("active");
+        signIn.addEventListener('click', signOutUser);
+        
         document.getElementById('account-details').textContent = JSON.stringify({
-          displayName: displayName,
-          email: email,
-          emailVerified: emailVerified,
-          phoneNumber: phoneNumber,
-          photoURL: photoURL,
-          uid: uid,
-          accessToken: accessToken,
-          providerData: providerData
+          displayName: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.displayName,
+          email: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.email,
+          emailVerified: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.emailVerified,
+          phoneNumber: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.phoneNumber,
+          photoURL: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.photoURL,
+          uid: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.uid,
+          accessToken: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.accessToken,
+          providerData: _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user.providerData
         }, null, '  ');
       });
     } else {
       // User is signed out.
       document.getElementById('sign-in-status').textContent = 'Signed out';
-      document.getElementById('sign-in').textContent = 'Sign in';
+      signIn.textContent = 'Sign in';
+      signIn.classList.remove("active");
       document.getElementById('account-details').textContent = 'null';
     }
   }, function(error) {
@@ -19515,6 +19537,20 @@ const initApp = function() {
 window.addEventListener('load', function() {
   initApp()
 });
+
+//Functions
+
+//Signout handler
+
+const signOutUser = function() {
+  (0,firebase_auth__WEBPACK_IMPORTED_MODULE_1__.signOut)(auth).then(()=>{
+    _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.user = null;
+    _StoreModel_js__WEBPACK_IMPORTED_MODULE_4__.StoreModel.isLoggedIn = false;
+    console.log("logging out");
+  }).catch((error) => { 
+    console.log("Error logging out"+error)
+  });
+}
 
 })();
 
